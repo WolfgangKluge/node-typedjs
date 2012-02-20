@@ -1,28 +1,26 @@
 vm = require 'vm'
 typedjs_parser = '../packages/TypedJS/typedjs_parser.js'
 
-_$TypedJS = {
-  typedjs: require '../packages/TypedJS/typed.js',
-  util: require 'util',
+_$TypedJS = (
+  typedjs: require '../packages/TypedJS/typed.js'
+  util: require 'util'
 
-  signatures: {},
+  signatures: {}
 
   # defines our type checking function
   args: (name, args) ->
     base = _$TypedJS.signatures[name]
 
-    // If the type signature exists
-    if (base) {
+    # If the type signature exists
+    if base
       base.args.forEach((arg, index) ->
         # the last one is the Return
-        return if index === base.args.length - 1
+        return if index is (base.args.length - 1)
 
         # Check the Type
-        if (!_$TypedJS.typedjs.check_type(args[index], arg)) {
+        if !_$TypedJS.typedjs.check_type args[index], arg
           throw new TypeError "#{name} Expected #{_TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
-        }
       )
-    }
 
     base
 
@@ -30,18 +28,16 @@ _$TypedJS = {
   ret: (name, value) ->
     base = _$TypedJS.signatures[name]
 
-    if (base) {
+    if base
       expected = base.args[base.args.length - 1]
 
       # Check the Type
-      if (!_$TypedJS.typedjs.check_type(value, expected)) {
+      if !_$TypedJS.typedjs.check_type value, expected
         throw new TypeError "#{name} Expected #{_TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
-      }
-    }
 
     #return back to function so program works correctly
     value
-}
+)
 
 
 createSandbox = (signatures) ->

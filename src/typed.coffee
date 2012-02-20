@@ -1,8 +1,8 @@
 fs = require 'fs'
 vm = require 'vm'
 
-instrument = require './lib/instrument'
-createSandbox = require './lib/contracts'
+instrument = require './instrument'
+createSandbox = require './contracts'
 
 #typedjs.quiet = true
 
