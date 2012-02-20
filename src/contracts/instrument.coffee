@@ -1,91 +1,15 @@
-esprima = require 'esprima'
-
-parseSignatures = require '../parseSignatures'
 traverse = require '../traverse'
 
 instrument = (code) ->
 
-  tree = esprima.parse code, { comment: true, loc: true, range: true }
-  signatures = parseSignatures tree.comments
-
+  signatures = {}
   functionList = []
 
-  findScope = (range) ->
-    i = functionList.length - 1
-    while i > 0
-      fn = functionList[i]
-      return fn if range < fn.end
-      i -= 1
-
-    null
-
-
-  traverse tree, (node, path) ->
-    if node.type is 'ReturnStatement'
-      obj = findScope node.range[1]
-
-      functionList.push {
-        name: 'return'
-        fn: obj && obj.name
-        range: node.range
-      }
-
-    else if node.type is 'FunctionDeclaration'
-      functionList.push {
-        name: node.id.name
-        range: node.range
-        blockStart: node.body.range[0]
-        end: node.body.range[1]
-      }
-
-    else if node.type is 'FunctionExpression'
-      parent = path[0]
-
-      if parent.type is 'AssignmentExpression'
-        if typeof parent.left.range isnt 'undefined'
-          name: if parent.id then parent.id.name else '[Anonymous]'
-          functionList.push {
-            name: code.slice(parent.left.range[0], parent.left.range[1] + 1)
-            range: node.range
-            blockStart: node.body.range[0]
-            end: node.body.range[1]
-          }
-
-      else if parent.type is 'VariableDeclarator'
-        functionList.push {
-          name: parent.id.name
-          range: node.range
-          blockStart: node.body.range[0]
-          end: node.body.range[1]
-        }
-
-      else if parent.type is 'CallExpression'
-        functionList.push {
-          name: if parent.id then parent.id.name else '[Anonymous]'
-          range: node.range
-          blockStart: node.body.range[0]
-          end: node.body.range[1]
-        }
-
-      else if typeof parent.length is 'number'
-        functionList.push {
-          name: if parent.id then parent.id.name else '[Anonymous]'
-          range: node.range
-          blockStart: node.body.range[0]
-          end: node.body.range[1]
-        }
-
-      else if typeof parent.key isnt 'undefined'
-        if parent.key.type is 'Identifier'
-          if parent.value is node and parent.key.name
-            functionList.push {
-              name: parent.key.name
-              range: node.range
-              blockStart: node.body.range[0]
-              end: node.body.range[1]
-            }
-
-
+  traverse code, (type, item) ->
+    if type is 'function'
+      functionList.push item
+    else if type is 'signatures'
+      signatures = item
 
 
   # Insert the instrumentation code from the last entry.
