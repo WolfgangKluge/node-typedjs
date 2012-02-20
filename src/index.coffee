@@ -1,2 +1,2 @@
 module.exports =
-  contracts: require './contracts'
+  contracts: require './contracts/'

@@ -1,8 +1,8 @@
 vm = require 'vm'
-typedjs_parser = '../packages/TypedJS/typedjs_parser.js'
+typedjs_parser = '../../packages/TypedJS/typedjs_parser.js'
 
 _$TypedJS = (
-  typedjs: require '../packages/TypedJS/typed.js'
+  typedjs: require '../../packages/TypedJS/typed.js'
   util: require 'util'
 
   signatures: {}
