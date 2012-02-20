@@ -1,53 +1,31 @@
+fs = require 'fs'
 vm = require 'vm'
-typedjs_parser = '../packages/TypedJS/typedjs_parser.js'
 
-_$TypedJS = (
-  typedjs: require '../packages/TypedJS/typed.js'
-  util: require 'util'
+instrument = require './instrument'
+createSandbox = require './createSandbox'
 
-  signatures: {}
+#typedjs.quiet = true
 
-  # defines our type checking function
-  args: (name, args) ->
-    base = _$TypedJS.signatures[name]
+mixInto = (base = {}, obj = {}) ->
+  Object.keys(obj).forEach((key) ->
+    base[key] = obj[key]
+  )
 
-    # If the type signature exists
-    if base
-      base.args.forEach((arg, index) ->
-        # the last one is the Return
-        return if index is (base.args.length - 1)
-
-        # Check the Type
-        if !_$TypedJS.typedjs.check_type args[index], arg
-          throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
-      )
-
-    base
+  base
 
 
-  ret: (name, value) ->
-    base = _$TypedJS.signatures[name]
+contracts = (code, sandbox) ->
+  { instrumentedCode, signatures } = instrument code
+  context = createSandbox signatures
 
-    if base
-      expected = base.args[base.args.length - 1]
+  script = vm.createScript instrumentedCode
 
-      # Check the Type
-      if !_$TypedJS.typedjs.check_type value, expected
-        throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
+  context = mixInto context, sandbox
 
-    #return back to function so program works correctly
-    value
-)
+  script.runInContext context
 
-
-createSandbox = (signatures) ->
-  _$TypedJS.signatures = signatures
-
-  context = vm.createContext()
-  context._$TypedJS = _$TypedJS
-  context.typedjs_parser = typedjs_parser
-
+# return { code: instrumented.code + ';' + tests, sandbox: sandbox };
   context
 
 
-module.exports = createSandbox
+module.exports = contracts
