@@ -19,7 +19,7 @@ _$TypedJS = (
 
         # Check the Type
         if !_$TypedJS.typedjs.check_type args[index], arg
-          throw new TypeError "#{name} Expected #{_TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
+          throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(arg)} but received #{_$TypedJS.util.inspect(args[index])}"
       )
 
     base
@@ -33,7 +33,7 @@ _$TypedJS = (
 
       # Check the Type
       if !_$TypedJS.typedjs.check_type value, expected
-        throw new TypeError "#{name} Expected #{_TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
+        throw new TypeError "#{name} Expected #{_$TypedJS.util.inspect(expected)} but received #{_$TypedJS.util.inspect(value)}"
 
     #return back to function so program works correctly
     value

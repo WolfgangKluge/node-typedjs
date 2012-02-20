@@ -15,8 +15,8 @@ mixInto = (base = {}, obj = {}) ->
 
 
 contracts = (code, sandbox) ->
-  { instrumentedCode, signatures } = instrument(code)
-  context = createSandbox(signatures)
+  { instrumentedCode, signatures } = instrument code
+  context = createSandbox signatures
 
   script = vm.createScript instrumentedCode
 
